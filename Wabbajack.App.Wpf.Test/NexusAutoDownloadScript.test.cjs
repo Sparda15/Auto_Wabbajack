@@ -283,3 +283,29 @@ check("a pending Standard cannot click for another file", f => {
     assert.equal(f.run(request, probe.document).status, "unavailable");
     assert.deepEqual(f.clicks, []);
 });
+
+check("document CAPTCHA is diagnosed even before component loads", f => {
+    f.component.remove();
+    f.win.document.body.innerHTML = '<div id="challenge-stage">Verify</div>';
+    assert.equal(f.attempt().reason, "captcha");
+    assert.deepEqual(f.clicks, []);
+});
+check("logged-out page reports login without a click", f => {
+    f.component.setAttribute("user-is-logged-in", "false");
+    assert.equal(f.attempt().reason, "login");
+    assert.deepEqual(f.clicks, []);
+});
+check("shadow CAPTCHA reports its cause", f => {
+    f.root.innerHTML += '<iframe src="https://challenges.cloudflare.com/test"></iframe>';
+    assert.equal(f.attempt().reason, "captcha");
+    assert.deepEqual(f.clicks, []);
+});
+check("hidden CAPTCHA does not block a normal download", f => {
+    f.root.innerHTML += '<div id="challenge-stage" hidden></div>';
+    assert.equal(f.attempt().status, "clicked");
+});
+check("unknown visible dialog reports manual intervention", f => {
+    f.root.innerHTML += '<div role="dialog">Consent</div>';
+    assert.equal(f.attempt().reason, "dialog");
+    assert.deepEqual(f.clicks, []);
+});

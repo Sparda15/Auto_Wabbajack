@@ -47,6 +47,32 @@ public partial class BrowserWindow : ReactiveUserControl<BrowserWindowViewModel>
                 .BindToStrict(this, v => v.AutoDownloadButton.Command)
                 .DisposeWith(disposables);
 
+            this.WhenAnyValue(v => v.ViewModel)
+                .Select(vm => vm is ManualDownloadHandler manual
+                    ? manual.WhenAnyValue(m => m.AutoDownloadStatusText)
+                    : Observable.Return(""))
+                .Switch()
+                .BindToStrict(this, v => v.AutoDownloadStatus.Text)
+                .DisposeWith(disposables);
+
+            this.WhenAnyValue(v => v.ViewModel)
+                .Select(vm => vm is ManualDownloadHandler manual
+                    ? manual.WhenAnyValue(m => m.AutoDownloadAvailable)
+                    : Observable.Return(false))
+                .Switch()
+                .Select(available => available ? Visibility.Visible : Visibility.Collapsed)
+                .BindToStrict(this, v => v.AutoDownloadStatus.Visibility)
+                .DisposeWith(disposables);
+
+            this.WhenAnyValue(v => v.ViewModel)
+                .Select(vm => vm is ManualDownloadHandler manual
+                    ? manual.WhenAnyValue(m => m.AutoDownloadNeedsAttention)
+                    : Observable.Return(false))
+                .Switch()
+                .Select(attention => attention ? System.Windows.Media.Brushes.Gold : System.Windows.Media.Brushes.LightGray)
+                .BindToStrict(this, v => v.AutoDownloadStatus.Foreground)
+                .DisposeWith(disposables);
+
             this.BindCommand(ViewModel, vm => vm.BackCommand, v => v.BackButton)
                 .DisposeWith(disposables);
 

@@ -29,8 +29,10 @@ internal sealed class NexusAutoDownloadState
 
     public void Invalidate() => Revision++;
 
-    public bool CanAct(Uri? current) =>
-        Enabled && !Handled && IsEligibleUri(current) && IsEligibleUri(_requested) &&
+    public bool CanAct(Uri? current) => Enabled && !Handled && MatchesRequest(current);
+
+    public bool MatchesRequest(Uri? current) =>
+        IsEligibleUri(current) && IsEligibleUri(_requested) &&
         current!.AbsolutePath.TrimEnd('/') == _requested!.AbsolutePath.TrimEnd('/') &&
         HttpUtility.ParseQueryString(current.Query)["file_id"] ==
         HttpUtility.ParseQueryString(_requested.Query)["file_id"];

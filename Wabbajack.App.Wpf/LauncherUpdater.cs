@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -27,7 +27,7 @@ public class LauncherUpdater
 
     private readonly DownloadDispatcher _downloader;
 
-    private static Uri GITHUB_REPO_RELEASES = new("https://api.github.com/repos/wabbajack-tools/wabbajack/releases");
+    private static Uri GITHUB_REPO_RELEASES = new("https://api.github.com/repos/Sparda15/Auto_Wabbajack/releases");
 
     public LauncherUpdater(ILogger<LauncherUpdater> logger, HttpClient client, Client wjclient, DTOSerializer dtos,
         DownloadDispatcher downloader)

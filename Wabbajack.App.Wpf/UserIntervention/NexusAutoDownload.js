@@ -31,9 +31,19 @@
         const label = element => element?.textContent.replace(/\s+/g, " ").trim();
         const single = elements => elements.length === 1 ? elements[0] : null;
 
+        const challenge = scope => [...scope.querySelectorAll(
+            'iframe[src*="challenges.cloudflare.com"], iframe[src*="recaptcha"], ' +
+            'iframe[src*="hcaptcha"], #challenge-running, #challenge-stage'
+        )].some(visible);
+        const login = scope => [...scope.querySelectorAll('input[type="password"]')].some(visible);
+        if (challenge(document)) return { status: "unavailable", reason: "captcha" };
+        if (login(document)) return { status: "unavailable", reason: "login" };
+
         const components = [...document.querySelectorAll("mod-file-download")].filter(visible);
         if (components.length !== 1) return { status: "unavailable" };
         const component = components[0];
+        if (component.getAttribute("user-is-logged-in") === "false")
+            return { status: "unavailable", reason: "login" };
         if (component.getAttribute("file-id") !== request.fileId ||
             component.getAttribute("game-domain") !== request.game ||
             component.getAttribute("user-is-logged-in") !== "true" ||
@@ -42,6 +52,8 @@
 
         const root = component.shadowRoot;
         if (!root) return { status: "unavailable" };
+        if (challenge(root)) return { status: "unavailable", reason: "captcha" };
+        if (login(root)) return { status: "unavailable", reason: "login" };
 
         // Only this component's known large-file modal is eligible. Do not search
         // arbitrary document portals for buttons with the same text.
@@ -73,7 +85,7 @@
                 (element.matches('dialog[open], [role="dialog"], [aria-modal="true"]') &&
                  element.contains(allowedModal)))));
         if (blocked(document) || blocked(root, standard ? modal : null))
-            return { status: "unavailable" };
+            return { status: "unavailable", reason: "dialog" };
 
         const key = "__wabbajackNexusAutoDownload";
         let state = window[key];
@@ -116,6 +128,6 @@
         button.click();
         return { status: "clicked", action };
     } catch {
-        return { status: "error" };
+        return { status: "error", reason: "error" };
     }
 }

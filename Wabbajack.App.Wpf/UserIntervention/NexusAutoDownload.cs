@@ -22,14 +22,18 @@ internal sealed class NexusAutoDownload : IDisposable
     private readonly NexusAutoDownloadState _state = new();
     private readonly string _request;
     private readonly string _script;
+    private readonly NexusAutoDownloadStatus _status;
+    private bool _finished;
     private bool _active = true;
     private bool _ready;
     private bool _busy;
     private bool _reportedUnavailable;
     private bool _reportedEligible;
 
-    public NexusAutoDownload(WebView2 browser, Uri requested, bool enabled, ILogger logger, CancellationToken token)
+    public NexusAutoDownload(WebView2 browser, Uri requested, bool enabled, ILogger logger, CancellationToken token, Action<string, bool, bool> statusChanged)
     {
+        _status = new NexusAutoDownloadStatus(statusChanged);
+        _status.Enable(enabled, DateTimeOffset.UtcNow);
         _browser = browser;
         _core = browser.CoreWebView2;
         _logger = logger;
@@ -58,7 +62,8 @@ internal sealed class NexusAutoDownload : IDisposable
     public void SetEnabled(bool enabled)
     {
         _state.SetEnabled(enabled);
-        if (enabled && _active && !_state.Handled) _timer.Start();
+        _status.Enable(enabled, DateTimeOffset.UtcNow);
+        if (enabled && _active && !_finished) _timer.Start();
         else _timer.Stop();
         // CheckAsync contains all failures; no unobserved failing task.
         _ = CheckAsync();
@@ -67,6 +72,8 @@ internal sealed class NexusAutoDownload : IDisposable
     private void OnDownloadStarting(object? sender, CoreWebView2DownloadStartingEventArgs args)
     {
         _ready = false;
+        _finished = true;
+        _status.DownloadStarted();
         // Observes only; the existing handler still owns URI capture/cancellation.
         _state.Complete();
         _timer.Stop();
@@ -76,6 +83,7 @@ internal sealed class NexusAutoDownload : IDisposable
     {
         _ready = false;
         _navigationId = args.NavigationId;
+        _status.Page(DateTimeOffset.UtcNow);
         _state.Invalidate();
     }
 
@@ -83,6 +91,7 @@ internal sealed class NexusAutoDownload : IDisposable
     {
         if (args.NavigationId != _navigationId) return;
         _ready = args.IsSuccess;
+        if (!args.IsSuccess) _status.Observe("navigation", DateTimeOffset.UtcNow);
         _ = CheckAsync();
     }
 
@@ -90,10 +99,19 @@ internal sealed class NexusAutoDownload : IDisposable
 
     private async Task CheckAsync()
     {
-        if (!_active || _token.IsCancellationRequested || !_ready || _busy) return;
+        if (!_active || _finished) return;
+        if (_token.IsCancellationRequested) { Dispose(); return; }
+        if (!_state.Enabled) return;
+        _status.Tick(DateTimeOffset.UtcNow);
+        if (!_ready || _busy) return;
         try
         {
-            if (!_state.CanAct(_browser.Source)) return;
+            if (!_state.MatchesRequest(_browser.Source))
+            {
+                if (_browser.Source?.Host == "users.nexusmods.com")
+                    _status.Observe("login", DateTimeOffset.UtcNow);
+                return;
+            }
             _busy = true;
             var revision = _state.Revision;
             if (!_reportedEligible)
@@ -104,7 +122,12 @@ internal sealed class NexusAutoDownload : IDisposable
             using var probe = JsonDocument.Parse(await _browser.ExecuteScriptAsync(
                 "(" + _script + ")(" + _request + ", null)"));
             if (!_active || _token.IsCancellationRequested || !_ready || revision != _state.Revision ||
-                !_state.CanAct(_browser.Source)) return;
+                !_state.Enabled || !_state.MatchesRequest(_browser.Source)) return;
+
+            var reason = probe.RootElement.TryGetProperty("reason", out var reasonValue)
+                ? reasonValue.GetString() : null;
+            _status.Observe(reason, DateTimeOffset.UtcNow);
+            if (_state.Handled) return;
 
             if (!probe.RootElement.TryGetProperty("status", out var status) ||
                 status.GetString() != "ready")
@@ -123,10 +146,12 @@ internal sealed class NexusAutoDownload : IDisposable
             var action = probe.RootElement.GetProperty("action").GetString();
             // Reserve before dispatch: uncertain script results must never cause a second click.
             if (!_state.TryHandle(_browser.Source, revision, action ?? "")) return;
-            if (_state.Handled) _timer.Stop();
+
             _logger.LogInformation("Attempting automatic {Action} Download", action);
             using var result = JsonDocument.Parse(await _browser.ExecuteScriptAsync(
                 "(" + _script + ")(" + _request + ", " + JsonSerializer.Serialize(document) + ")"));
+            if (!_active || _token.IsCancellationRequested || revision != _state.Revision) return;
+            _status.Clicked(DateTimeOffset.UtcNow);
             if (!result.RootElement.TryGetProperty("status", out var outcome) ||
                 outcome.GetString() != "clicked")
             {
@@ -150,7 +175,9 @@ internal sealed class NexusAutoDownload : IDisposable
 
     private void ReportUnavailable(Exception? exception = null)
     {
-        if (_reportedUnavailable || !_active) return;
+        if (!_active) return;
+        if (exception != null || _state.Handled) _status.Observe("error", DateTimeOffset.UtcNow);
+        if (_reportedUnavailable) return;
         _reportedUnavailable = true;
         _logger.LogWarning(exception, "Auto Nexus download unavailable, falling back to manual");
     }

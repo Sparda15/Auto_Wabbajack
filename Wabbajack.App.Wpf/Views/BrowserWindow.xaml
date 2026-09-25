@@ -14,6 +14,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -44,7 +45,10 @@
 			Padding="0, 4, 0, 8">
 			<ic:SymbolIcon Symbol="Dismiss" FontSize="24" HorizontalAlignment="Right" VerticalAlignment="Center" />
 		</Button>
-        <Grid x:Name="WebViewGrid" Grid.Row="3" Grid.ColumnSpan="4" Margin="0, 0, 0, -16">
+        <TextBlock x:Name="AutoDownloadStatus" Grid.Row="3" Grid.ColumnSpan="4"
+                   Margin="8,0,8,8" TextWrapping="Wrap" Visibility="Collapsed"
+                   AutomationProperties.LiveSetting="Polite" />
+        <Grid x:Name="WebViewGrid" Grid.Row="4" Grid.ColumnSpan="4" Margin="0, 0, 0, -16">
             <TextBlock
                 x:Name="WebViewWarning"
                 VerticalAlignment="Center"

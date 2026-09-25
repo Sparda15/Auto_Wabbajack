@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -32,7 +32,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly List<string> _errors = new();
 
     private (Version Version, long Size, Func<Task<Uri>> Uri) _version;
-    public Uri GITHUB_REPO = new("https://api.github.com/repos/wabbajack-tools/wabbajack/releases");
+    public Uri GITHUB_REPO = new("https://api.github.com/repos/Sparda15/Auto_Wabbajack/releases");
     private readonly NexusApi _nexusApi;
     private readonly HttpDownloader _downloader;
     private readonly ITokenProvider<NexusOAuthState> _tokenProvider;
@@ -85,18 +85,7 @@ public partial class MainWindowViewModel : ViewModelBase
         try
         {
 
-            if (_tokenProvider.HaveToken())
-            {
-                try
-                {
-                    _version = await GetNexusReleases(CancellationToken.None);
-                }
-                catch (Exception)
-                {
-                    _errors.Add("Nexus error");
-                }
-            }
-
+            // Fork releases are distributed through this repository only.
             if (_version == default)
             {
                 _version = await GetGithubRelease(CancellationToken.None);
