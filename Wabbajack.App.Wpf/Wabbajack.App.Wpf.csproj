@@ -146,4 +146,8 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Wabbajack.App.Wpf.Test" />
+    <EmbeddedResource Include="UserIntervention\NexusAutoDownload.js" LogicalName="Wabbajack.NexusAutoDownload.js" />
+  </ItemGroup>
 </Project>

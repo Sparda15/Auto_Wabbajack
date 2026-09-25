@@ -1,5 +1,6 @@
 using System;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.Windows.Controls;
 using System.Windows;
@@ -22,6 +23,29 @@ public partial class BrowserWindow : ReactiveUserControl<BrowserWindowViewModel>
                 await Task.Delay(TimeSpan.FromSeconds(2));
                 WebViewWarning.Visibility = Visibility.Visible;
             });
+
+            this.WhenAnyValue(v => v.ViewModel)
+                .Select(vm => vm is ManualDownloadHandler manual
+                    ? manual.WhenAnyValue(m => m.AutoDownloadAvailable)
+                    : Observable.Return(false))
+                .Switch()
+                .Select(available => available ? Visibility.Visible : Visibility.Collapsed)
+                .BindToStrict(this, v => v.AutoDownloadButton.Visibility)
+                .DisposeWith(disposables);
+
+            this.WhenAnyValue(v => v.ViewModel)
+                .Select(vm => vm is ManualDownloadHandler manual
+                    ? manual.WhenAnyValue(m => m.AutoDownloadEnabled)
+                    : Observable.Return(false))
+                .Switch()
+                .Select(enabled => enabled ? "Auto Download: ON" : "Auto Download: OFF")
+                .BindToStrict(this, v => v.AutoDownloadButton.Text)
+                .DisposeWith(disposables);
+
+            this.WhenAnyValue(v => v.ViewModel)
+                .Select(vm => (vm as ManualDownloadHandler)?.ToggleAutoDownloadCommand)
+                .BindToStrict(this, v => v.AutoDownloadButton.Command)
+                .DisposeWith(disposables);
 
             this.BindCommand(ViewModel, vm => vm.BackCommand, v => v.BackButton)
                 .DisposeWith(disposables);

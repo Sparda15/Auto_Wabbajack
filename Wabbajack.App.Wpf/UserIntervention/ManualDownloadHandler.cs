@@ -7,11 +7,11 @@ using Wabbajack.DTOs.Interventions;
 
 namespace Wabbajack;
 
-public class ManualDownloadHandler : BrowserWindowViewModel
+public partial class ManualDownloadHandler : BrowserWindowViewModel
 {
     public ManualDownload Intervention { get; set; }
 
-    public ManualDownloadHandler(IServiceProvider serviceProvider) : base(serviceProvider) { }
+    public ManualDownloadHandler(IServiceProvider serviceProvider) : base(serviceProvider) { InitializeAutoDownload(serviceProvider); }
 
     protected override async Task Run(CancellationToken token)
     {
@@ -20,6 +20,7 @@ public class ManualDownloadHandler : BrowserWindowViewModel
         {
             var archive = Intervention.Archive;
             var md = Intervention.Archive.State as Manual;
+            AutoDownloadAvailable = NexusAutoDownloadState.IsEligibleUri(md.Url);
 
             HeaderText = $"Manual download for {archive.Name} ({md.Url.Host})";
 
@@ -29,6 +30,9 @@ public class ManualDownloadHandler : BrowserWindowViewModel
         }
         finally
         {
+            _automation?.Dispose();
+            _automation = null;
+            AutoDownloadAvailable = false;
             Intervention.Finish(dowloadState);
         }
     }
@@ -58,6 +62,7 @@ public class ManualDownloadHandler : BrowserWindowViewModel
 
         Browser.CoreWebView2.DownloadStarting += handler;
 
+        StartAutoDownload(downloadPageUrl, token);
         await NavigateTo(downloadPageUrl);
 
         try
