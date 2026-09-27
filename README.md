@@ -1,59 +1,61 @@
 # Auto Wabbajack
 
-**Fork NO OFICIAL de [Wabbajack](https://github.com/wabbajack-tools/wabbajack), basado en la versión 4.2.3.0, que añade funciones opcionales para facilitar y supervisar las descargas.**
+## English
 
-Wabbajack fue creado por **[halgari](https://github.com/halgari)** y es desarrollado por el **[equipo Wabbajack y sus colaboradores](https://github.com/wabbajack-tools/wabbajack/graphs/contributors)**. El crédito por la aplicación original y su tecnología corresponde a sus autores. Este fork, mantenido por [Sparda15](https://github.com/Sparda15), se centra en las funciones adicionales descritas aquí y no es una distribución oficial ni implica el respaldo del equipo original.
+**UNOFFICIAL fork of Wabbajack 4.2.3.0**, maintained by [Sparda15](https://github.com/Sparda15). Adds optional download assistance while preserving Wabbajack’s installation and file verification workflow. This fork is not endorsed by the original team.
 
-## Proyecto original y créditos
+### Extra features
 
-- **Web oficial:** [wabbajack.org](https://www.wabbajack.org/)
-- **Repositorio original:** [wabbajack-tools/wabbajack](https://github.com/wabbajack-tools/wabbajack)
-- **Documentación oficial:** [wiki.wabbajack.org](https://wiki.wabbajack.org/)
-- **Versión utilizada como base:** [Wabbajack 4.2.3.0](https://github.com/wabbajack-tools/wabbajack/releases/tag/4.2.3.0)
+- **Auto Download ON/OFF:** starts OFF each session.
+- **Download selection:** identifies Slow/Fast download and selects Standard download in the supported large-file dialog.
+- **Visible status and alerts:** reports waiting states, login requirements, CAPTCHA and stalled download starts.
 
-## Funciones añadidas por este fork
+Account restrictions, speed limits and countdowns remain unchanged. Login and CAPTCHA require manual intervention.
 
-- **Auto Download opcional:** botón ON/OFF dentro del navegador integrado. Empieza en OFF al abrir la aplicación y mantiene la elección entre archivos durante esa sesión.
-- **Selección de descarga:** identifica el botón Slow download o Fast download según la cuenta, y Standard download en el diálogo conocido de archivos grandes.
-- **Estado visible:** Esperando página, Esperando descarga y Necesita intervención.
-- **Avisos de bloqueo:** aviso visual y sonoro cuando se detecta un CAPTCHA, una sesión cerrada, un error de navegación o un diálogo pendiente. También avisa tras 45 segundos sin inicio de descarga.
+### Download
 
-Se conserva el flujo original de instalación, cola, descarga y verificación de archivos. El lanzador y su actualizador apuntan a las releases de este fork. No se distribuyen mods con la aplicación.
+[**Download version 1.0**](https://github.com/Sparda15/Auto_Wabbajack/releases/tag/1.0.0.0)
 
-La automatización utiliza controles identificados de la página; no elimina límites de velocidad, esperas ni requisitos de cuenta. El inicio de sesión y los CAPTCHA requieren intervención manual. Si cambia la estructura de Nexus, puede ser necesario continuar manualmente.
+Place **Wabbajack.exe** in a separate folder and run it. The launcher downloads the application and receives updates from this fork. Fork executables are unsigned.
 
-## Descargar y utilizar
+### Original project and credits
 
-**[Descargar Auto Wabbajack 1.0 estable](https://github.com/Sparda15/Auto_Wabbajack/releases/tag/1.0.0.0)**
+Wabbajack was created by **halgari** and developed by the **Wabbajack team and contributors**. All credit for the original application belongs to them.
 
-1. Descarga **Wabbajack.exe** de los archivos de la release.
-2. Colócalo en una carpeta nueva, separada de la instalación oficial.
-3. Ejecuta ese archivo: el lanzador descargará la aplicación y creará su carpeta de versión.
+- [Creator: halgari](https://github.com/halgari)
+- [Official website](https://www.wabbajack.org/)
+- [Original repository](https://github.com/wabbajack-tools/wabbajack)
+- [Team and contributors](https://github.com/wabbajack-tools/wabbajack/graphs/contributors)
 
-La release incluye el lanzador autocontenido para Windows x64, **1.0.0.0.zip** con la aplicación y CLI, y **SHA256SUMS.txt**. Para instalar manualmente, extrae el ZIP en una subcarpeta llamada `1.0.0.0` junto al lanzador. Los ejecutables de este fork no tienen la firma digital del proyecto oficial.
-
-La versión 1.0 identifica las funciones de este fork; la aplicación mantiene su base 4.2.3.0. [Detalles técnicos, compilación y pruebas](https://github.com/Sparda15/Auto_Wabbajack/blob/auto-nexus-4.2.3.0/AUTO-WABBAJACK.md).
-
-## Soporte y licencia
-
-Para incidencias de las funciones añadidas, utiliza [las incidencias de este fork](https://github.com/Sparda15/Auto_Wabbajack/issues). El equipo original no es responsable de estas modificaciones.
-
-Se conserva la [licencia GPL-3.0 del proyecto original](LICENSE.txt) y los avisos de autoría y licencias de terceros. Gracias a halgari, al equipo Wabbajack y a todos sus colaboradores por hacer posible este proyecto.
+[GPL-3.0 license](LICENSE.txt) · [Fork support](https://github.com/Sparda15/Auto_Wabbajack/issues)
 
 ---
 
-<details>
-<summary>Documentación original de Wabbajack</summary>
+## Español
 
-# Wabbajack
+**Fork NO OFICIAL de Wabbajack 4.2.3.0**, mantenido por [Sparda15](https://github.com/Sparda15). Añade asistencia opcional para las descargas y conserva el flujo de instalación y verificación de archivos de Wabbajack. No cuenta con el respaldo del equipo original.
 
-[![Discord](https://img.shields.io/discord/605449136870916175)](https://www.wabbajack.org/discord)
-[![CI Tests](https://github.com/wabbajack-tools/wabbajack/actions/workflows/tests.yaml/badge.svg)](https://github.com/wabbajack-tools/wabbajack/actions/workflows/tests.yaml)
-[![GitHub all releases](https://img.shields.io/github/downloads/wabbajack-tools/wabbajack/total)](https://github.com/wabbajack-tools/wabbajack/releases)
+### Funciones adicionales
 
-## License & Copyright
+- **Auto Download ON/OFF:** empieza desactivado en cada sesión.
+- **Selección de descarga:** identifica Slow/Fast download y selecciona Standard download en el diálogo compatible de archivos grandes.
+- **Estados y avisos:** informa sobre esperas, inicio de sesión, CAPTCHA y demoras en el inicio de descarga.
 
-All original code in Wabbajack is given freely via the [GPL3 license](LICENSE.txt). Parts of Wabbajack use libraries that carry their own Open Sources licenses, those parts retain their original copyrights. Selling of Modlist files is strictly forbidden. As is hosting the files behind any sort of paywall. You received this tool free of charge, respect this by giving freely as you were given.
+Se mantienen las restricciones de cuenta, límites de velocidad y cuentas atrás. El inicio de sesión y los CAPTCHA requieren intervención manual.
 
+### Descargar
 
-</details>
+[**Descargar versión 1.0**](https://github.com/Sparda15/Auto_Wabbajack/releases/tag/1.0.0.0)
+
+Coloca **Wabbajack.exe** en una carpeta separada y ejecútalo. El lanzador descarga la aplicación y recibe actualizaciones de este fork. Los ejecutables del fork no están firmados.
+
+### Proyecto original y créditos
+
+Wabbajack fue creado por **halgari** y desarrollado por el **equipo Wabbajack y sus colaboradores**. Todo el crédito de la aplicación original les corresponde.
+
+- [Creador: halgari](https://github.com/halgari)
+- [Web oficial](https://www.wabbajack.org/)
+- [Repositorio original](https://github.com/wabbajack-tools/wabbajack)
+- [Equipo y colaboradores](https://github.com/wabbajack-tools/wabbajack/graphs/contributors)
+
+[Licencia GPL-3.0](LICENSE.txt) · [Soporte del fork](https://github.com/Sparda15/Auto_Wabbajack/issues)
